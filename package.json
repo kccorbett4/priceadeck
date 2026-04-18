@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build && vite build --ssr src/entry-server.jsx --outDir dist/server && node prerender.js",
     "build:client": "vite build",
-    "preview": "vite preview"
+    "postbuild": "node scripts/indexnow.js",
+    "preview": "vite preview",
+    "indexnow": "INDEXNOW_FORCE=1 node scripts/indexnow.js"
   },
   "dependencies": {
     "react": "^18.3.1",

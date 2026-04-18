@@ -12,6 +12,31 @@ function H3({ children }) {
 function P({ children }) {
   return <p style={{ fontSize: 16, lineHeight: 1.75, color: T.textMid, margin: "12px 0" }}>{children}</p>;
 }
+
+/* ── Link helpers ── */
+const slugState = (name) => name.toLowerCase().replace(/[.\s]/g, "-").replace("washington-d-c", "washington-dc");
+const linkStyle = { color: T.accent, fontWeight: 500, textDecoration: "underline", textDecorationThickness: 1, textUnderlineOffset: 2 };
+const SL = ({ children }) => <Link to={`/${slugState(children)}`} style={linkStyle}>{children}</Link>;
+const CL = ({ slug, children }) => <Link to={`/city/${slug}`} style={linkStyle}>{children}</Link>;
+const DL = ({ children }) => <Link to="/deck-cost-data" style={linkStyle}>{children}</Link>;
+
+const GUIDE_TITLES = {
+  "composite-vs-wood-vs-pvc": "Composite vs Wood vs PVC",
+  "deck-cost-guide": "2026 Deck Cost Guide",
+  "deck-permits-and-codes": "Deck Permits & Building Codes",
+  "deck-cost-by-size": "Deck Cost by Size (100–1,000 sqft)",
+  "how-long-to-build-a-deck": "How Long to Build a Deck",
+  "deck-financing-guide": "Deck Financing Guide",
+  "does-a-deck-add-home-value": "Does a Deck Add Home Value?",
+};
+function RelatedGuides({ slugs }) {
+  return <div style={{ marginTop: 40, paddingTop: 24, borderTop: `1px solid ${T.borderLight}` }}>
+    <div style={{ fontSize: 11, fontWeight: 700, color: T.textMid, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>Related guides</div>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
+      {slugs.map(s => <Link key={s} to={`/blog/${s}`} style={{ padding: "12px 14px", borderRadius: 8, border: `1px solid ${T.borderLight}`, color: T.text, fontSize: 13, fontWeight: 600, textDecoration: "none", background: T.cardAlt }}>{GUIDE_TITLES[s]} →</Link>)}
+    </div>
+  </div>;
+}
 function Table({ rows }) {
   return <div style={{ border: `1px solid ${T.borderLight}`, borderRadius: 10, overflow: "hidden", margin: "18px 0", background: T.card }}>
     {rows.map((r, i) => <div key={i} style={{ display: "grid", gridTemplateColumns: r.length === 2 ? "1fr 1fr" : `repeat(${r.length}, 1fr)`, padding: "12px 16px", borderBottom: i < rows.length - 1 ? `1px solid ${T.borderLight}` : "none", background: i === 0 ? T.cardAlt : T.card, fontSize: 13, fontWeight: i === 0 ? 700 : 400, color: i === 0 ? T.textMid : T.text }}>
@@ -39,6 +64,7 @@ const ARTICLES = {
     description: "Honest deep-dive on composite, pressure-treated wood, cedar, PVC, and hardwood decking. Real pricing, real lifespans, real maintenance costs.",
     date: "April 2026",
     read: "14 min read",
+    related: ["deck-cost-guide", "deck-cost-by-size", "does-a-deck-add-home-value"],
     body: <>
       <P>Choosing a deck material is the single biggest decision you'll make before breaking ground. Material alone is 30–50% of the total build, and it dictates the next 20–40 years of maintenance. This guide covers the five categories most homeowners actually choose between — pressure-treated pine, cedar/redwood, composite, PVC, and tropical hardwoods — with honest trade-offs on price, lifespan, and upkeep.</P>
 
@@ -120,6 +146,7 @@ const ARTICLES = {
     description: "Complete breakdown of deck construction costs: materials, framing, footings, railings, stairs, labor, and permits. Real numbers for 2026.",
     date: "April 2026",
     read: "10 min read",
+    related: ["composite-vs-wood-vs-pvc", "deck-cost-by-size", "deck-financing-guide"],
     body: <>
       <P>A new deck in 2026 costs $30–$75 per square foot installed, or roughly $9,000–$30,000 for a typical 300 sqft deck. The range is wide because seven different cost buckets drive the total — and only one of them is the decking boards.</P>
 
@@ -144,7 +171,7 @@ const ARTICLES = {
       <P>Nearly every deck uses pressure-treated lumber for framing regardless of the decking material — PT joists last 20+ years underneath and are far cheaper than framing in hardwood. Expect $8–14 per sqft of deck for framing material plus labor. Taller decks, longer spans, and multi-level builds push this number up.</P>
 
       <H2>3. Footings</H2>
-      <P>Every post needs a footing that reaches below the frost line (or onto bedrock). In warm states, 24-inch concrete piers cost $150–200 each. In frost states (Minnesota, New England, Upper Midwest), 48-inch frost footings run $230–300 each. Rocky soil may require helical piles at $300–500 per pile but no concrete pour.</P>
+      <P>Every post needs a footing that reaches below the frost line (or onto bedrock). In warm states, 24-inch concrete piers cost $150–200 each. In frost states (<SL>Minnesota</SL>, New England, Upper Midwest), 48-inch frost footings run $230–300 each. Rocky soil may require helical piles at $300–500 per pile but no concrete pour.</P>
       <P>A 300 sqft deck typically needs 4–6 footings. Multi-level or high decks need more.</P>
 
       <H2>4. Railings</H2>
@@ -162,10 +189,10 @@ const ARTICLES = {
       <P>Stairs are expensive on a per-foot basis — each step requires framing, treads, risers, and typically a handrail. Budget $130–250 per step. A deck 4 feet off the ground needs roughly 5 steps; a deck 6 feet off the ground needs 8.</P>
 
       <H2>6. Labor</H2>
-      <P>Labor is 20–35% of total depending on state. Texas, Georgia, and Mississippi run 80% of national averages. California, New York, and Massachusetts run 25–40% above. A 300 sqft deck takes a 2-person crew 7–12 working days.</P>
+      <P>Labor is 20–35% of total depending on state. <SL>Texas</SL>, <SL>Georgia</SL>, and <SL>Mississippi</SL> run 80% of national averages. <SL>California</SL>, <SL>New York</SL>, and <SL>Massachusetts</SL> run 25–40% above. A 300 sqft deck takes a 2-person crew 7–12 working days. See <DL>state-by-state pricing</DL> for the full dataset.</P>
 
       <H2>7. Permits</H2>
-      <P>Required almost universally for decks over 30 inches or attached to the house. Most jurisdictions charge $100–400. High-cost states (California, New York, Massachusetts) can exceed $500. Inspections happen at the footing stage and final. Skipping permits can force demolition when you sell.</P>
+      <P>Required almost universally for decks over 30 inches or attached to the house. Most jurisdictions charge $100–400. High-cost states (<SL>California</SL>, <SL>New York</SL>, <SL>Massachusetts</SL>) can exceed $500. Inspections happen at the footing stage and final. Skipping permits can force demolition when you sell.</P>
 
       <H2>Hidden costs that ambush homeowners</H2>
       <ul style={{ fontSize: 16, lineHeight: 1.75, color: T.textMid }}>
@@ -188,6 +215,7 @@ const ARTICLES = {
     description: "When you need a deck permit, what it costs, what codes apply, and what inspectors look for. A 2026 homeowner's guide.",
     date: "April 2026",
     read: "9 min read",
+    related: ["deck-cost-guide", "how-long-to-build-a-deck", "does-a-deck-add-home-value"],
     body: <>
       <P>A deck permit is usually the cheapest insurance a homeowner can buy. It's a $150–500 document that prevents a $5,000–30,000 problem at resale, forces a safety inspection that catches the mistakes that kill people, and makes your homeowner's insurance cover the deck if something goes wrong.</P>
 
@@ -210,6 +238,7 @@ const ARTICLES = {
         ["Northeast","$300–550","2–3"],
         ["California metros","$400–800","3"],
       ]} />
+      <P>Permit budgets are baked into <DL>our state-by-state cost data</DL> — see the expected permit cost for your state before you sign a contract.</P>
 
       <H2>What code compliance covers</H2>
       <P>Modern deck codes (IRC 2021, adopted by most US states) are specific. The six things inspectors check:</P>
@@ -228,10 +257,10 @@ const ARTICLES = {
       <P>Footings must reach below the local frost line. Typical minimums:</P>
       <Table rows={[
         ["Region","Frost depth"],
-        ["Gulf Coast / Florida","12 inches"],
+        [<>Gulf Coast / <SL>Florida</SL></>,"12 inches"],
         ["Mid-Atlantic / Pacific NW","24 inches"],
         ["Midwest / Mountain","36–42 inches"],
-        ["Northern Tier (MN, ND, ME)","48–60 inches"],
+        [<>Northern Tier (<SL>Minnesota</SL>, <SL>North Dakota</SL>, <SL>Maine</SL>)</>,"48–60 inches"],
       ]} />
 
       <H3>3. Post-to-beam connection</H3>
@@ -281,6 +310,7 @@ const ARTICLES = {
     description: "Real 2026 deck pricing by size. What a 100, 200, 300, 500, and 1,000 sqft deck actually costs in composite, wood, and PVC.",
     date: "April 2026",
     read: "7 min read",
+    related: ["deck-cost-guide", "composite-vs-wood-vs-pvc", "does-a-deck-add-home-value"],
     body: <>
       <P>Deck cost scales close to linearly with square footage, but not quite — footings, stairs, and permits are fixed costs that don't grow. Here's what you actually pay by size, in 2026 dollars.</P>
 
@@ -321,7 +351,7 @@ const ARTICLES = {
       <H2>How to think about size</H2>
       <P>Most homeowners underestimate the deck they need. A 12×12 deck (144 sqft) sounds big on paper and lives small in practice — a patio table + 6 chairs eats most of it. Practical minimum for entertaining: 300 sqft. Comfortable for a family of 4 with a grill, dining table, and a seating nook: 400–500 sqft.</P>
 
-      <P>The difference between 300 and 500 sqft on a composite deck is roughly $7,000. The difference between loving your deck and wishing you'd built bigger is priceless. When in doubt, go one size up.</P>
+      <P>The difference between 300 and 500 sqft on a composite deck is roughly $7,000. The difference between loving your deck and wishing you'd built bigger is priceless. When in doubt, go one size up. (Prices above are mid-tier; see <DL>state-specific pricing</DL> for your local number.)</P>
 
       <H2>When oversizing hurts</H2>
       <P>Three cases where you should go smaller, not bigger:</P>
@@ -344,6 +374,7 @@ const ARTICLES = {
     description: "Realistic timeline for every stage of deck construction in 2026, from contract signing to first cookout.",
     date: "April 2026",
     read: "6 min read",
+    related: ["deck-permits-and-codes", "deck-financing-guide", "deck-cost-guide"],
     body: <>
       <P>A typical 300 sqft deck takes 8–14 weeks from signing a contract to walking on it. Most of that is waiting — permits, crew scheduling, and weather. Active build time is only 7–12 working days.</P>
 
@@ -359,7 +390,7 @@ const ARTICLES = {
       ]} />
 
       <H2>Permit review is the variable</H2>
-      <P>In Florida or Texas, small-town permit offices often turn decks around in 5–10 business days. In California, Massachusetts, or any jurisdiction with historic review, permits can take 4–8 weeks. If the deck is in a homeowners' association, add another 2–4 weeks for architectural committee review.</P>
+      <P>In <SL>Florida</SL> or <SL>Texas</SL>, small-town permit offices often turn decks around in 5–10 business days. In <SL>California</SL>, <SL>Massachusetts</SL>, or any jurisdiction with historic review, permits can take 4–8 weeks. If the deck is in a homeowners' association, add another 2–4 weeks for architectural committee review.</P>
 
       <H2>Active construction — day by day</H2>
       <P>Here's what a 300 sqft composite deck build looks like:</P>
@@ -398,6 +429,7 @@ const ARTICLES = {
     description: "Every way to finance a deck build in 2026, compared on rate, term, and fees. What homeowners actually use.",
     date: "April 2026",
     read: "7 min read",
+    related: ["deck-cost-guide", "does-a-deck-add-home-value", "deck-cost-by-size"],
     body: <>
       <P>Most decks $10,000+ are financed rather than paid cash. The right financing depends on your equity, credit score, and how long you want to pay. Here's the honest comparison.</P>
 
@@ -453,6 +485,7 @@ const ARTICLES = {
     description: "How much of a deck's cost comes back at resale? Data-driven analysis by material, region, and home type.",
     date: "April 2026",
     read: "6 min read",
+    related: ["composite-vs-wood-vs-pvc", "deck-cost-guide", "deck-financing-guide"],
     body: <>
       <P>Yes — a new deck adds measurable home value. The typical return is 50–70% of the project cost recovered at sale, making decks one of the better-returning home improvements. But "better returning" isn't the same as "profitable" — no renovation returns 100%. Here's the real math.</P>
 
@@ -468,11 +501,11 @@ const ARTICLES = {
 
       <H2>Regional differences</H2>
       <ul style={{ fontSize: 16, lineHeight: 1.75, color: T.textMid }}>
-        <li><strong>South / Southeast:</strong> ROI 60–75%. Year-round deck weather drives value.</li>
-        <li><strong>Mountain West:</strong> ROI 55–70%. Short usable season dampens appraisal lift.</li>
-        <li><strong>Midwest:</strong> ROI 50–65%. Winter closes the deck for 4–5 months.</li>
-        <li><strong>Northeast:</strong> ROI 50–60%. Similar to Midwest; freeze-thaw erodes wood faster.</li>
-        <li><strong>Pacific Northwest:</strong> ROI 55–70%. Mild climate helps; composite especially valued.</li>
+        <li><strong>South / Southeast (<SL>Texas</SL>, <SL>Florida</SL>, <SL>Georgia</SL>):</strong> ROI 60–75%. Year-round deck weather drives value.</li>
+        <li><strong>Mountain West (<SL>Colorado</SL>, <SL>Utah</SL>):</strong> ROI 55–70%. Short usable season dampens appraisal lift.</li>
+        <li><strong>Midwest (<SL>Ohio</SL>, <SL>Illinois</SL>, <SL>Minnesota</SL>):</strong> ROI 50–65%. Winter closes the deck for 4–5 months.</li>
+        <li><strong>Northeast (<SL>Massachusetts</SL>, <SL>New York</SL>):</strong> ROI 50–60%. Similar to Midwest; freeze-thaw erodes wood faster.</li>
+        <li><strong>Pacific Northwest (<SL>Washington</SL>, <SL>Oregon</SL>):</strong> ROI 55–70%. Mild climate helps; composite especially valued.</li>
       </ul>
 
       <H2>Factors that raise ROI</H2>
@@ -526,6 +559,7 @@ export default function BlogPage() {
       <div style={{ fontSize: 11, fontWeight: 700, color: T.accent, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 14 }}>Guide · {article.date} · {article.read}</div>
       <h1 style={{ fontSize: "clamp(30px, 5vw, 46px)", fontFamily: "'Fraunces',Georgia,serif", fontWeight: 700, lineHeight: 1.12, margin: "0 0 20px", letterSpacing: "-0.02em" }}>{article.title}</h1>
       {article.body}
+      {article.related && <RelatedGuides slugs={article.related} />}
     </div>
   </div>;
 }
