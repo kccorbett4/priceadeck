@@ -185,10 +185,11 @@ function Slider({ label, val, setter, min, max, stp = 1, suffix = "ft" }) {
 export function Nav() {
   return <div style={{ maxWidth: 1080, margin: "0 auto", padding: "20px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
     <Link to="/" style={{ textDecoration: "none", color: T.text, fontWeight: 800, fontSize: 18, fontFamily: "'Fraunces',Georgia,serif", letterSpacing: "-0.015em" }}>PriceADeck<span style={{ color: T.accent }}>.com</span></Link>
-    <div style={{ display: "flex", gap: 20, alignItems: "center", fontSize: 13 }}>
+    <div style={{ display: "flex", gap: 18, alignItems: "center", fontSize: 13, flexWrap: "wrap" }}>
       <Link to="/deck-cost-by-state" style={{ color: T.textMid, textDecoration: "none", fontWeight: 600 }}>By State</Link>
       <Link to="/blog/composite-vs-wood-vs-pvc" style={{ color: T.textMid, textDecoration: "none", fontWeight: 600 }}>Guides</Link>
       <Link to="/deck-cost-data" style={{ color: T.textMid, textDecoration: "none", fontWeight: 600 }}>Cost Data</Link>
+      <a href="https://priceapool.com" style={{ color: T.textMid, textDecoration: "none", fontWeight: 600 }}>Pool Costs</a>
     </div>
   </div>;
 }
@@ -450,8 +451,8 @@ export default function App() {
     {/* Hero photo below calculator */}
     <div style={{ maxWidth: 1080, margin: "40px auto 8px", padding: "0 16px" }}>
       <figure style={{ margin: 0 }}>
-        <div style={{ borderRadius: 20, overflow: "hidden", boxShadow: "0 4px 32px rgba(15,76,92,0.15)", aspectRatio: "16 / 9", background: T.bg2, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ padding: 40, textAlign: "center", color: T.textDim, fontSize: 14 }}>Featured deck photo</div>
+        <div style={{ borderRadius: 20, overflow: "hidden", boxShadow: "0 4px 32px rgba(15,76,92,0.15)", aspectRatio: "16 / 9", background: T.bg2 }}>
+          <img src="/hero-deck.jpg" alt="Modern composite deck at golden hour with family and string lights" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         </div>
         <figcaption style={{ fontSize: 12, color: T.textDim, marginTop: 10, textAlign: "center", fontStyle: "italic" }}>A thoughtful estimate now. A real deck, later.</figcaption>
       </figure>
@@ -470,8 +471,10 @@ export default function App() {
     </div>
 
     {/* Footer */}
-    <div style={{ borderTop: `1px solid ${T.border}`, padding: "28px 24px", textAlign: "center", color: T.textDim, fontSize: 12 }}>
-      © 2026 PriceADeck.com · <Link to="/deck-cost-by-state" style={{ color: T.textDim }}>Deck Cost by State</Link> · <Link to="/blog/composite-vs-wood-vs-pvc" style={{ color: T.textDim }}>Materials Guide</Link>
+    <div style={{ borderTop: `1px solid ${T.border}`, padding: "28px 24px", textAlign: "center", color: T.textDim, fontSize: 12, lineHeight: 1.8 }}>
+      Estimates based on 2026 national averages adjusted for state, metro area, and scope. Actual costs vary by contractor, site, and materials. Always get 3+ written bids.<br />
+      Also from us: <a href="https://priceapool.com" style={{ color: T.accent, fontWeight: 600, textDecoration: "none" }}>PriceAPool.com</a> — pool cost calculator.<br />
+      © 2026 PriceADeck.com · <Link to="/deck-cost-by-state" style={{ color: T.textDim }}>By State</Link> · <Link to="/blog/composite-vs-wood-vs-pvc" style={{ color: T.textDim }}>Materials Guide</Link>
     </div>
   </div>;
 }
