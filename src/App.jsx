@@ -209,7 +209,6 @@ export function Nav() {
       <Link to="/deck-cost-by-state" style={{ color: T.textMid, textDecoration: "none", fontWeight: 600 }}>By State</Link>
       <Link to="/blog/composite-vs-wood-vs-pvc" style={{ color: T.textMid, textDecoration: "none", fontWeight: 600 }}>Guides</Link>
       <Link to="/deck-cost-data" style={{ color: T.textMid, textDecoration: "none", fontWeight: 600 }}>Cost Data</Link>
-      <a href="https://priceapool.com" style={{ color: T.textMid, textDecoration: "none", fontWeight: 600 }}>Pool Costs</a>
     </div>
   </div>;
 }
@@ -380,7 +379,8 @@ export default function App() {
     <div style={{ borderBottom: `1px solid ${T.border}`, background: T.card }}><Nav /></div>
 
     {/* Hero */}
-    <div style={{ maxWidth: 860, margin: "0 auto", padding: "72px 24px 40px", textAlign: "center" }}>
+    <div style={{ maxWidth: 860, margin: "0 auto", padding: "56px 24px 40px", textAlign: "center" }}>
+      <img src="/og-image.jpg" alt="PriceADeck — deck cost calculator" style={{ width: "min(340px, 80vw)", height: "auto", display: "block", margin: "0 auto 18px", borderRadius: 12 }} />
       <div style={{ fontSize: 11, fontWeight: 700, color: T.accent, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 14 }}>2026 Deck Cost Calculator</div>
       <h1 style={{ fontSize: "clamp(34px, 6vw, 56px)", fontFamily: "'Fraunces',Georgia,serif", fontWeight: 700, lineHeight: 1.05, letterSpacing: "-0.02em", margin: "0 0 18px" }}>How much will your new deck cost?</h1>
       <p style={{ fontSize: 17, color: T.textMid, lineHeight: 1.55, maxWidth: 580, margin: "0 auto" }}>An honest estimate in under two minutes — priced against 2026 lumber, composite, and labor rates in your state and metro.</p>
@@ -532,8 +532,7 @@ export default function App() {
     {/* Footer */}
     <div style={{ borderTop: `1px solid ${T.border}`, padding: "28px 24px", textAlign: "center", color: T.textDim, fontSize: 12, lineHeight: 1.8 }}>
       Estimates based on 2026 national averages adjusted for state, metro area, and scope. Actual costs vary by contractor, site, and materials. Always get 3+ written bids.<br />
-      Also from us: <a href="https://priceapool.com" style={{ color: T.accent, fontWeight: 600, textDecoration: "none" }}>PriceAPool.com</a> — pool cost calculator.<br />
-      © 2026 PriceADeck.com · <Link to="/deck-cost-by-state" style={{ color: T.textDim }}>By State</Link> · <Link to="/blog/composite-vs-wood-vs-pvc" style={{ color: T.textDim }}>Materials Guide</Link>
+      © 2026 PriceADeck.com ·<Link to="/deck-cost-by-state" style={{ color: T.textDim }}>By State</Link> · <Link to="/blog/composite-vs-wood-vs-pvc" style={{ color: T.textDim }}>Materials Guide</Link>
     </div>
   </div>;
 }
