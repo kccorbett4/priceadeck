@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import "./index.css";
@@ -182,23 +182,44 @@ const S = {
   btn: (pri, dis) => ({ padding: "13px 28px", borderRadius: 10, border: pri ? "none" : `1px solid ${T.border}`, fontWeight: 600, fontSize: 14, cursor: dis ? "not-allowed" : "pointer", background: pri ? (dis ? "#D4D0C7" : T.text) : "transparent", color: pri ? "#FFFFFF" : T.text, transition: "all .18s", boxShadow: pri && !dis ? "0 1px 2px rgba(10,10,10,0.08), 0 4px 16px rgba(10,10,10,0.08)" : "none" }),
 };
 
-export function Card({ children, style: sx }) { return <div style={{ ...S.card, ...sx }}>{children}</div>; }
+export function Card({ children, style: sx, hover }) { return <div data-card-hover={hover ? "true" : undefined} style={{ ...S.card, ...sx }}>{children}</div>; }
 export function Ttl({ children }) { return <div style={S.ttl}>{children}</div>; }
 export function Dsc({ children }) { return <div style={S.dsc}>{children}</div>; }
-export function Opt({ sel, onClick, children, style: sx }) { return <div onClick={onClick} style={{ ...S.opt(sel), ...sx }}>{children}</div>; }
+export function Opt({ sel, onClick, children, style: sx }) { return <div data-option onClick={onClick} style={{ ...S.opt(sel), ...sx }}>{children}</div>; }
 export function Chip({ on, onClick, children }) {
-  return <div onClick={onClick} style={S.chip(on)}>{children}<div style={{ width: 18, height: 18, borderRadius: 4, background: on ? T.accent : T.border, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, color: "#fff", flexShrink: 0 }}>{on ? "✓" : ""}</div></div>;
+  return <div data-option onClick={onClick} style={S.chip(on)}>{children}<div style={{ width: 18, height: 18, borderRadius: 4, background: on ? T.accent : T.border, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, color: "#fff", flexShrink: 0 }}>{on ? "✓" : ""}</div></div>;
 }
-export function Btn({ pri, dis, children, onClick }) { return <button onClick={onClick} disabled={dis} style={S.btn(pri, dis)}>{children}</button>; }
+export function Btn({ pri, dis, children, onClick }) { return <button data-btn={pri ? "primary" : "secondary"} onClick={onClick} disabled={dis} style={S.btn(pri, dis)}>{children}</button>; }
 function Slider({ label, val, setter, min, max, stp = 1, suffix = "ft" }) {
+  const pct = ((val - min) / (max - min)) * 100;
   return <div style={{ marginBottom: 16 }}>
     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
       <span style={{ fontSize: 12, fontWeight: 600, color: T.textMid }}>{label}</span>
       <span style={{ fontSize: 17, fontWeight: 800, color: T.accent, fontVariantNumeric: "tabular-nums" }}>{Math.round(val)} {suffix}</span>
     </div>
     <input type="range" min={min} max={max} step={stp} value={val}
-      onChange={e => setter(+e.target.value)} className="deck-slider" />
+      onChange={e => setter(+e.target.value)} className="deck-slider" style={{ "--fill": `${pct}%` }} />
   </div>;
+}
+
+/* Animated number counter — cubic ease-out tween between renders */
+function useAnimatedNumber(value, duration = 500) {
+  const [display, setDisplay] = useState(value);
+  const prev = useRef(value);
+  useEffect(() => {
+    const start = prev.current, end = value, t0 = performance.now();
+    let raf;
+    const tick = (now) => {
+      const p = Math.min((now - t0) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setDisplay(start + (end - start) * eased);
+      if (p < 1) raf = requestAnimationFrame(tick);
+      else prev.current = end;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, duration]);
+  return display;
 }
 
 /* ── Nav (shared across pages) ── */
@@ -365,10 +386,11 @@ export default function App() {
   }, [footprint, perimeter, mat, ht, sh, rail, sd, metro, features, shape, height, length, width]);
 
   const maxR = Math.max(...bRows.map(r => r.v));
+  const animTotal = useAnimatedNumber(total);
 
   const toggleFeature = (id) => setFeatures(f => ({ ...f, [id]: !f[id] }));
 
-  return <div style={{ minHeight: "100vh", background: T.bg, color: T.text }}>
+  return <div style={{ minHeight: "100vh", color: T.text }}>
     <Helmet>
       <title>Deck Cost Calculator 2026 — How Much Does a Deck Cost?</title>
       <meta name="description" content="Free 2026 deck cost calculator. Instant estimates for composite, pressure-treated, cedar, PVC, and hardwood decks adjusted for your state and build." />
@@ -469,10 +491,10 @@ export default function App() {
       </Card>
 
       {/* Headline result */}
-      <Card style={{ background: `linear-gradient(140deg, ${T.accent} 0%, ${T.accentDark} 100%)`, border: "none", color: "#fff" }} data-print-section="estimate">
-        <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", opacity: 0.8, marginBottom: 6 }}>Your Estimate</div>
-        <div style={{ fontSize: "clamp(36px, 7vw, 56px)", fontWeight: 900, fontFamily: "'Fraunces',Georgia,serif", letterSpacing: "-0.02em", lineHeight: 1 }}>{fmt(total)}</div>
-        <div style={{ fontSize: 14, opacity: 0.9, marginTop: 8 }}>Range: {fmt(total * 0.87)} – {fmt(total * 1.18)}</div>
+      <Card style={{ background: `linear-gradient(140deg, ${T.accent} 0%, ${T.accentDark} 100%)`, border: "none", color: "#fff", borderRadius: 16 }} data-print-section="estimate" data-estimate-card>
+        <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", opacity: 0.85, marginBottom: 6 }}>Your Estimate</div>
+        <div style={{ fontSize: "clamp(38px, 7.5vw, 62px)", fontWeight: 800, fontFamily: "'Fraunces',Georgia,serif", letterSpacing: "-0.025em", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{fmt(animTotal)}</div>
+        <div style={{ fontSize: 14, opacity: 0.9, marginTop: 10 }}>Range: {fmt(total * 0.87)} – {fmt(total * 1.18)}</div>
         <div style={{ fontSize: 12, opacity: 0.75, marginTop: 4 }}>≈ {fmt(total / footprint)} per sqft installed · {mat.label} · {Math.round(footprint)} sqft</div>
         <div style={{ marginTop: 14, display: "flex", gap: 8, flexWrap: "wrap" }} className="no-print">
           <button onClick={() => window.print()} style={{ padding: "9px 16px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.35)", background: "rgba(255,255,255,0.08)", color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>💾 Save / Print Estimate</button>
