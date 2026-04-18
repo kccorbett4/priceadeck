@@ -32,3 +32,18 @@ html, body { margin: 0; padding: 0; background: #FAF8F3; font-family: 'Inter', -
   box-shadow: 0 2px 6px rgba(15,76,92,0.28);
 }
 a { color: inherit; }
+
+/* Print styles — clean estimate for PDF save */
+@media print {
+  @page { margin: 0.5in; }
+  html, body { background: #ffffff !important; }
+  nav, button, input, .no-print { display: none !important; }
+  .deck-slider { display: none !important; }
+  details > summary { list-style: none; }
+  details[open] > summary { page-break-after: avoid; }
+  details > div { display: block !important; }
+  a { color: #0A0A0A !important; text-decoration: none !important; }
+  figure, img[src*="hero-deck"], img[src*="og-image"] { display: none !important; }
+  [data-print-section="estimate"] { display: block !important; }
+  [data-print-section="estimate"] h1 { font-size: 22pt !important; margin-bottom: 8pt !important; }
+}

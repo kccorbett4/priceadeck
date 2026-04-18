@@ -469,11 +469,15 @@ export default function App() {
       </Card>
 
       {/* Headline result */}
-      <Card style={{ background: `linear-gradient(140deg, ${T.accent} 0%, ${T.accentDark} 100%)`, border: "none", color: "#fff" }}>
+      <Card style={{ background: `linear-gradient(140deg, ${T.accent} 0%, ${T.accentDark} 100%)`, border: "none", color: "#fff" }} data-print-section="estimate">
         <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", opacity: 0.8, marginBottom: 6 }}>Your Estimate</div>
         <div style={{ fontSize: "clamp(36px, 7vw, 56px)", fontWeight: 900, fontFamily: "'Fraunces',Georgia,serif", letterSpacing: "-0.02em", lineHeight: 1 }}>{fmt(total)}</div>
         <div style={{ fontSize: 14, opacity: 0.9, marginTop: 8 }}>Range: {fmt(total * 0.87)} – {fmt(total * 1.18)}</div>
         <div style={{ fontSize: 12, opacity: 0.75, marginTop: 4 }}>≈ {fmt(total / footprint)} per sqft installed · {mat.label} · {Math.round(footprint)} sqft</div>
+        <div style={{ marginTop: 14, display: "flex", gap: 8, flexWrap: "wrap" }} className="no-print">
+          <button onClick={() => window.print()} style={{ padding: "9px 16px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.35)", background: "rgba(255,255,255,0.08)", color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>💾 Save / Print Estimate</button>
+          <button onClick={() => { if (navigator.share) navigator.share({ title: "My deck estimate", text: `My ${mat.label} deck estimate: ${fmt(total)} (${Math.round(footprint)} sqft in ${sd.name})`, url: window.location.href }); else { navigator.clipboard?.writeText(window.location.href); } }} style={{ padding: "9px 16px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.35)", background: "rgba(255,255,255,0.08)", color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>📤 Share Estimate</button>
+        </div>
       </Card>
 
       {/* Lead capture */}

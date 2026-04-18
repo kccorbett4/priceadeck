@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { T, Card, Ttl, Dsc, Nav } from "./App.jsx";
+import { Breadcrumbs, ArticleSchema, Byline } from "./SeoHelpers.jsx";
 
 /* ── Reusable UI ── */
 function H2({ children }) {
@@ -551,13 +552,32 @@ export default function BlogPage() {
       <title>{article.title}</title>
       <meta name="description" content={article.description} />
       <link rel="canonical" href={`https://priceadeck.com/blog/${slug}`} />
+      <meta property="og:title" content={article.title} />
+      <meta property="og:description" content={article.description} />
+      <meta property="og:url" content={`https://priceadeck.com/blog/${slug}`} />
+      <meta property="og:type" content="article" />
+      <meta property="og:image" content="https://priceadeck.com/og-image.jpg" />
     </Helmet>
+
+    <ArticleSchema
+      headline={article.title}
+      description={article.description}
+      slug={`/blog/${slug}`}
+      datePublished="2026-04-01"
+      dateModified="2026-04-18"
+    />
 
     <div style={{ borderBottom: `1px solid ${T.border}`, background: T.card }}><Nav /></div>
 
-    <div style={{ maxWidth: 760, margin: "0 auto", padding: "40px 24px 80px" }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: T.accent, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 14 }}>Guide · {article.date} · {article.read}</div>
-      <h1 style={{ fontSize: "clamp(30px, 5vw, 46px)", fontFamily: "'Fraunces',Georgia,serif", fontWeight: 700, lineHeight: 1.12, margin: "0 0 20px", letterSpacing: "-0.02em" }}>{article.title}</h1>
+    <div style={{ maxWidth: 760, margin: "0 auto", padding: "24px 24px 80px" }}>
+      <Breadcrumbs trail={[
+        { name: "Home", path: "/" },
+        { name: "Guides", path: "/blog/composite-vs-wood-vs-pvc" },
+        { name: GUIDE_TITLES[slug] || article.title, path: `/blog/${slug}` },
+      ]} />
+      <div style={{ fontSize: 11, fontWeight: 700, color: T.accent, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 14 }}>Guide · {article.read}</div>
+      <h1 style={{ fontSize: "clamp(30px, 5vw, 46px)", fontFamily: "'Fraunces',Georgia,serif", fontWeight: 700, lineHeight: 1.12, margin: "0 0 12px", letterSpacing: "-0.02em" }}>{article.title}</h1>
+      <Byline />
       {article.body}
       {article.related && <RelatedGuides slugs={article.related} />}
     </div>

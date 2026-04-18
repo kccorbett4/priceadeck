@@ -24,6 +24,28 @@ export const CITY_SLUGS = [
   "denver","nashville","columbus","minneapolis","boston"
 ];
 
+export const MATERIAL_SLUGS = [
+  "composite-deck-cost",
+  "trex-deck-cost",
+  "pressure-treated-deck-cost",
+  "cedar-deck-cost",
+  "pvc-deck-cost",
+  "ipe-deck-cost",
+];
+
+export const SIZE_SLUGS = [
+  "deck-cost-10x10",
+  "deck-cost-10x12",
+  "deck-cost-12x12",
+  "deck-cost-12x16",
+  "deck-cost-12x20",
+  "deck-cost-14x16",
+  "deck-cost-14x20",
+  "deck-cost-16x16",
+  "deck-cost-16x20",
+  "deck-cost-20x20",
+];
+
 export function getAllPaths() {
   return [
     '/',
@@ -32,5 +54,7 @@ export function getAllPaths() {
     ...STATE_SLUGS.map(s => `/${s}`),
     ...BLOG_SLUGS.map(s => `/blog/${s}`),
     ...CITY_SLUGS.map(s => `/city/${s}`),
+    ...MATERIAL_SLUGS.map(s => `/${s}`),
+    ...SIZE_SLUGS.map(s => `/${s}`),
   ];
 }

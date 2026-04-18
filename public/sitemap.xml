@@ -75,4 +75,22 @@
   <url><loc>https://priceadeck.com/wisconsin</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://priceadeck.com/wyoming</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://priceadeck.com/washington-dc</loc><changefreq>monthly</changefreq><priority>0.75</priority></url>
+
+  <url><loc>https://priceadeck.com/composite-deck-cost</loc><changefreq>monthly</changefreq><priority>0.92</priority></url>
+  <url><loc>https://priceadeck.com/trex-deck-cost</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://priceadeck.com/pressure-treated-deck-cost</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://priceadeck.com/cedar-deck-cost</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://priceadeck.com/pvc-deck-cost</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://priceadeck.com/ipe-deck-cost</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+  <url><loc>https://priceadeck.com/deck-cost-10x10</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://priceadeck.com/deck-cost-10x12</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://priceadeck.com/deck-cost-12x12</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://priceadeck.com/deck-cost-12x16</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://priceadeck.com/deck-cost-12x20</loc><changefreq>monthly</changefreq><priority>0.88</priority></url>
+  <url><loc>https://priceadeck.com/deck-cost-14x16</loc><changefreq>monthly</changefreq><priority>0.88</priority></url>
+  <url><loc>https://priceadeck.com/deck-cost-14x20</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://priceadeck.com/deck-cost-16x16</loc><changefreq>monthly</changefreq><priority>0.88</priority></url>
+  <url><loc>https://priceadeck.com/deck-cost-16x20</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://priceadeck.com/deck-cost-20x20</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
 </urlset>

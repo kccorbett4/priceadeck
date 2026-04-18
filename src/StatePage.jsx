@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { STATES, DECK_MATERIALS, T, Card, Ttl, Dsc, Nav, estimateSample } from "./App.jsx";
+import { Breadcrumbs, FAQBlock, ArticleSchema, Byline } from "./SeoHelpers.jsx";
 
 const SLUG_TO_CODE = Object.fromEntries(
   Object.entries(STATES).map(([k, s]) => [s.name.toLowerCase().replace(/[.\s]/g, "-").replace("washington-d-c", "washington-dc"), k])
@@ -29,18 +30,49 @@ export default function StatePage() {
   const title = `${sd.name} Deck Cost 2026 — How Much Does a Deck Cost in ${sd.name}?`;
   const desc = `Real 2026 deck costs for ${sd.name}. Composite, pressure-treated, and PVC pricing with state labor rates, permits, and frost-line considerations.`;
 
+  const laborPct = Math.round((labor - 1) * 100);
+  const frostNote = sd.frost ? "Frost-line footings push 36–48 inches deep in this state, adding roughly 8–12% to total cost vs warm-climate equivalents." : "No frost-line requirement — standard 18–24 inch footings apply here.";
+
+  const faqs = [
+    { q: `How much does a deck cost in ${sd.name}?`, a: `In ${sd.name}, a standard 300 sqft deck runs about $${samples[0].total.toLocaleString()} for pressure-treated pine to $${samples[4].total.toLocaleString()} for ipe hardwood. Most homeowners picking mid-tier composite (Trex, TimberTech) land near $${samples[2].total.toLocaleString()} — roughly $${Math.round(samples[2].total / 300)} per square foot installed.` },
+    { q: `Do I need a permit for a deck in ${sd.name}?`, a: `Most ${sd.name} municipalities require a building permit for any deck over 30 inches off the ground or attached to a house. Permit fees typically run around $${permit}. Inspections usually happen at the footing stage and at final.` },
+    { q: `What's the cheapest deck material in ${sd.name}?`, a: `Pressure-treated pine at about $${Math.round(samples[0].total / 300)} per square foot installed. Cedar is the next step up at $${Math.round(samples[1].total / 300)}/sqft. For long-term cost-of-ownership (accounting for stain and maintenance), composite at $${Math.round(samples[2].total / 300)}/sqft often wins past year 12.` },
+    { q: `How much is labor for a deck in ${sd.name}?`, a: `${sd.name} labor runs ${Math.round(labor * 100)}% of the US average — ${laborPct >= 0 ? `${laborPct}% above` : `${-laborPct}% below`} the national baseline. Labor accounts for 40–55% of total deck cost. On a 300 sqft composite build, that's roughly $${Math.round(samples[2].total * 0.48).toLocaleString()} of the total.` },
+    { q: sd.frost ? `Do I need frost-line footings in ${sd.name}?` : `What type of footings does ${sd.name} require?`, a: frostNote + (sd.frost ? ` Most ${sd.name} jurisdictions require footings below the local frost line, verified at inspection.` : ` Check local building codes — some coastal ${sd.name} jurisdictions still require hurricane anchoring on footings.`) },
+    { q: `Does a deck add home value in ${sd.name}?`, a: `Yes. Nationally, a new deck returns 50–70% of its cost at resale. In ${sd.name}'s climate, an outdoor living space is especially valued${sd.frost ? " despite the shorter usable season" : ""}. Real estate appraisers typically credit deck value at 50–65% of installed cost; buyers tend to value it even higher when a property is actively listed.` },
+  ];
+
   return <div style={{ minHeight: "100vh", background: T.bg, color: T.text }}>
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={desc} />
       <link rel="canonical" href={`https://priceadeck.com/${stateSlug}`} />
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={desc} />
+      <meta property="og:url" content={`https://priceadeck.com/${stateSlug}`} />
+      <meta property="og:image" content="https://priceadeck.com/og-image.jpg" />
     </Helmet>
+
+    <ArticleSchema
+      headline={`${sd.name} Deck Cost 2026`}
+      description={desc}
+      slug={`/${stateSlug}`}
+      datePublished="2026-04-01"
+      dateModified="2026-04-18"
+    />
 
     <div style={{ borderBottom: `1px solid ${T.border}`, background: T.card }}><Nav /></div>
 
-    <div style={{ maxWidth: 820, margin: "0 auto", padding: "40px 24px 60px" }}>
+    <div style={{ maxWidth: 820, margin: "0 auto", padding: "24px 24px 60px" }}>
+      <Breadcrumbs trail={[
+        { name: "Home", path: "/" },
+        { name: "By State", path: "/deck-cost-by-state" },
+        { name: sd.name, path: `/${stateSlug}` },
+      ]} />
+
       <div style={{ fontSize: 11, fontWeight: 700, color: T.accent, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 14 }}>State Cost Guide</div>
       <h1 style={{ fontSize: "clamp(32px, 5vw, 48px)", fontFamily: "'Fraunces',Georgia,serif", fontWeight: 700, lineHeight: 1.1, margin: "0 0 14px", letterSpacing: "-0.015em" }}>How much does a deck cost in {sd.name}?</h1>
+      <Byline />
       <p style={{ fontSize: 17, color: T.textMid, lineHeight: 1.6, marginBottom: 28 }}>
         In {sd.name}, a standard 300 sqft deck runs roughly <strong style={{ color: T.accent }}>${samples[0].total.toLocaleString()}–${samples[3].total.toLocaleString()}</strong> depending on material. Labor runs {Math.round((labor - 1) * 100)}% {labor > 1 ? "above" : "below"} the national average, and permits typically cost about ${permit}.{sd.frost ? " Frost-line footings add 8–12% to the build." : ""}
       </p>
@@ -66,9 +98,11 @@ export default function StatePage() {
           <p><strong style={{ color: T.text }}>Labor ({Math.round(labor * 100)}% of national avg).</strong> {labor > 1.1 ? "Contractor rates are significantly above average here — expect to pay a premium for experienced deck crews." : labor < 0.9 ? "Labor is below national averages, keeping full builds affordable." : "Labor runs close to the US average."}</p>
           <p><strong style={{ color: T.text }}>Permits (~${permit}).</strong> Most {sd.name} municipalities require a building permit for any deck over 30 inches. Inspections typically happen at the footing and final stages.</p>
           {sd.frost && <p><strong style={{ color: T.text }}>Frost-line footings.</strong> {sd.name}'s frost line forces footings 36–48 inches deep, adding roughly $50–80 per pier and extra concrete volume. Budget 8–12% more than warm-climate equivalents.</p>}
-          <p><strong style={{ color: T.text }}>Materials.</strong> Pressure-treated pine is the cheapest per sqft; composite (Trex, TimberTech) is 2–3× more but almost maintenance-free. Most {sd.name} homeowners picking a mid-tier build land on composite.</p>
+          <p><strong style={{ color: T.text }}>Materials.</strong> Pressure-treated pine is the cheapest per sqft; composite (<Link to="/trex-deck-cost" style={{ color: T.accent }}>Trex</Link>, TimberTech) is 2–3× more but almost maintenance-free. Most {sd.name} homeowners picking a mid-tier build land on <Link to="/composite-deck-cost" style={{ color: T.accent }}>composite</Link>.</p>
         </div>
       </Card>
+
+      <FAQBlock items={faqs} title={`${sd.name} deck cost — FAQ`} />
 
       <Card style={{ background: `linear-gradient(135deg, ${T.accentLight}, #f0f9ff)`, borderColor: T.accent }}>
         <Ttl>Ready for your own estimate?</Ttl>
@@ -82,6 +116,8 @@ export default function StatePage() {
           <Link to="/blog/composite-vs-wood-vs-pvc" style={{ color: T.accent, fontSize: 13, fontWeight: 600 }}>Composite vs Wood vs PVC →</Link>
           <Link to="/blog/deck-cost-guide" style={{ color: T.accent, fontSize: 13, fontWeight: 600 }}>Deck Cost Guide →</Link>
           <Link to="/blog/deck-permits-and-codes" style={{ color: T.accent, fontSize: 13, fontWeight: 600 }}>Deck Permits →</Link>
+          <Link to="/composite-deck-cost" style={{ color: T.accent, fontSize: 13, fontWeight: 600 }}>Composite Deck Cost →</Link>
+          <Link to="/pressure-treated-deck-cost" style={{ color: T.accent, fontSize: 13, fontWeight: 600 }}>PT Deck Cost →</Link>
         </div>
       </div>
     </div>
