@@ -1,30 +1,22 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { STATES, DECK_MATERIALS, T, Card, Ttl, Dsc, Nav } from "./App.jsx";
+import { STATES, DECK_MATERIALS, T, Card, Ttl, Dsc, Nav, estimateSample } from "./App.jsx";
 
 const slugify = (name) => name.toLowerCase().replace(/[.\s]/g, "-").replace("washington-d-c", "washington-dc");
 
 export default function DataPage() {
-  const estimate = (sd, matRate) => {
-    const sqft = 300;
-    const matCost = sqft * matRate;
-    const frame = sqft * 11 * 1.12 * (sd.frost ? 1.08 : 1.0);
-    const footings = Math.ceil(sqft / 75) * (sd.frost ? 240 : 170);
-    const railing = 44 * 65;
-    const stairs = 2000;
-    const preLabor = matCost + frame + footings + railing + stairs;
-    const laborC = preLabor * (0.55 * (sd.labor - 1) + 0.55);
-    const cont = (preLabor + laborC + sd.permit) * 0.08;
-    return Math.round(preLabor + laborC + sd.permit + cont);
+  const sample = (code, id) => {
+    const m = DECK_MATERIALS[id];
+    return estimateSample({ matRate: m.sqftRate, fastenerRate: m.fastenerRate, stepRate: m.stepRate, stateCode: code });
   };
 
   const rows = Object.entries(STATES).map(([k, s]) => ({
     code: k,
     name: s.name,
     slug: slugify(s.name),
-    pt: estimate(s, DECK_MATERIALS.pt.sqftRate),
-    composite: estimate(s, DECK_MATERIALS.composite.sqftRate),
-    pvc: estimate(s, DECK_MATERIALS.pvc.sqftRate),
+    pt: sample(k, "pt"),
+    composite: sample(k, "composite"),
+    pvc: sample(k, "pvc"),
     labor: Math.round(s.labor * 100),
     frost: s.frost,
   })).sort((a, b) => a.name.localeCompare(b.name));
@@ -61,7 +53,7 @@ export default function DataPage() {
       </Card>
 
       <div style={{ fontSize: 11, color: T.textDim, marginTop: 14, lineHeight: 1.6 }}>
-        Methodology: Base material rates (PT $5/sqft, composite $14/sqft, PVC $19/sqft) × 300 sqft + framing ($11/sqft × height factor × frost multiplier) + footings (4 piers) + railing (44 lf × $65) + stairs ($2,000) + state labor adjustment + permit + 8% contingency. Labor column shows state wage index relative to US average (100%).
+        Methodology: Board material + fasteners + 8% waste, all scaled by sqft. $10.50/sqft framing baseline × mid-height × frost multiplier. Footings (~1 per 60 sqft, min 4) × $180 ($260 frost). 20 ft ledger × $26. Composite stair run scaled by material. Composite railing at $65/lf. State labor multiplier applied at 42% + 40% × (multiplier − 1) of subtotal. Base permit + $0.50/sqft. 8% contingency. Labor column = state wage index relative to US average (100%).
       </div>
     </div>
   </div>;

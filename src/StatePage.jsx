@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { STATES, DECK_MATERIALS, T, Card, Ttl, Dsc, Nav } from "./App.jsx";
+import { STATES, DECK_MATERIALS, T, Card, Ttl, Dsc, Nav, estimateSample } from "./App.jsx";
 
 const SLUG_TO_CODE = Object.fromEntries(
   Object.entries(STATES).map(([k, s]) => [s.name.toLowerCase().replace(/[.\s]/g, "-").replace("washington-d-c", "washington-dc"), k])
@@ -21,22 +21,9 @@ export default function StatePage() {
   const labor = sd.labor;
   const permit = sd.permit;
 
-  /* Sample deck: 300 sqft, mid-height, composite railing */
-  const estimate = (matRate) => {
-    const sqft = 300;
-    const matCost = sqft * matRate;
-    const frame = sqft * 11 * 1.12 * (sd.frost ? 1.08 : 1.0);
-    const footings = Math.ceil(sqft / 75) * (sd.frost ? 240 : 170);
-    const railing = 44 * 65; // 44 linear ft × composite rate
-    const stairs = 2000;
-    const preLabor = matCost + frame + footings + railing + stairs;
-    const laborC = preLabor * (0.55 * (labor - 1) + 0.55);
-    const cont = (preLabor + laborC + permit) * 0.08;
-    return Math.round(preLabor + laborC + permit + cont);
-  };
-
   const samples = Object.entries(DECK_MATERIALS).map(([id, m]) => ({
-    id, label: m.label, life: m.life, maint: m.maint, total: estimate(m.sqftRate)
+    id, label: m.label, life: m.life, maint: m.maint,
+    total: estimateSample({ matRate: m.sqftRate, fastenerRate: m.fastenerRate, stepRate: m.stepRate, stateCode: code })
   }));
 
   const title = `${sd.name} Deck Cost 2026 — How Much Does a Deck Cost in ${sd.name}?`;

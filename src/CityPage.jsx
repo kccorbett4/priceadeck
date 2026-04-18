@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { STATES, DECK_MATERIALS, T, Card, Ttl, Dsc, Nav } from "./App.jsx";
+import { STATES, DECK_MATERIALS, T, Card, Ttl, Dsc, Nav, estimateSample } from "./App.jsx";
 
 const CITIES = {
   houston:    { name: "Houston",     state: "TX", mult: 0.95, note: "Humid coastal climate favors composite or PVC for rot resistance. Hurricane codes may require extra footings." },
@@ -29,21 +29,9 @@ export default function CityPage() {
   const sd = STATES[city.state];
   const effLabor = sd.labor * city.mult;
 
-  const estimate = (matRate) => {
-    const sqft = 300;
-    const matCost = sqft * matRate;
-    const frame = sqft * 11 * 1.12 * (sd.frost ? 1.08 : 1.0);
-    const footings = Math.ceil(sqft / 75) * (sd.frost ? 240 : 170);
-    const railing = 44 * 65;
-    const stairs = 2000;
-    const preLabor = matCost + frame + footings + railing + stairs;
-    const laborC = preLabor * (0.55 * (effLabor - 1) + 0.55);
-    const cont = (preLabor + laborC + sd.permit) * 0.08;
-    return Math.round(preLabor + laborC + sd.permit + cont);
-  };
-
   const samples = Object.entries(DECK_MATERIALS).map(([id, m]) => ({
-    id, label: m.label, total: estimate(m.sqftRate)
+    id, label: m.label,
+    total: estimateSample({ matRate: m.sqftRate, fastenerRate: m.fastenerRate, stepRate: m.stepRate, stateCode: city.state, metroMult: city.mult })
   }));
 
   return <div style={{ minHeight: "100vh", background: T.bg, color: T.text }}>

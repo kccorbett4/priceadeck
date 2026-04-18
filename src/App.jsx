@@ -91,27 +91,30 @@ function getMetroMult(zip) {
   return { mult: METRO_MULT[metro] || 1.0, label: labels[metro] || metro };
 }
 
-/* Deck materials — per-sqft rate is the MATERIAL cost only (boards + hardware). Labor/framing computed separately. */
+/* Deck materials. sqftRate = board cost/sqft; fastenerRate = clips+screws/sqft; stepRate = $/step for stringer+tread material */
 export const DECK_MATERIALS = {
-  pt:       {label:"Pressure-Treated Pine",  sqftRate:5,   life:"15–20 yrs", maint:"Stain every 2–3 yrs", desc:"Cheapest, workhorse lumber"},
-  cedar:    {label:"Cedar / Redwood",        sqftRate:9,   life:"20–25 yrs", maint:"Seal every 2–3 yrs",  desc:"Natural rot resistance, warm look"},
-  composite:{label:"Composite (Trex, TimberTech)", sqftRate:14, life:"25–30 yrs", maint:"Rinse yearly",   desc:"Low maintenance, fade-resistant"},
-  pvc:      {label:"PVC / Cellular",         sqftRate:19,  life:"30+ yrs",   maint:"Rinse yearly",        desc:"Waterproof, premium durability"},
-  hardwood: {label:"Ipe / Cumaru Hardwood",  sqftRate:22,  life:"40+ yrs",   maint:"Oil annually (optional)", desc:"Tropical dense wood, elite look"},
+  pt:       {label:"Pressure-Treated Pine",  sqftRate:5,   fastenerRate:0.50, stepRate:28,  life:"15–20 yrs", maint:"Stain every 2–3 yrs", desc:"Cheapest, workhorse lumber"},
+  cedar:    {label:"Cedar / Redwood",        sqftRate:9,   fastenerRate:0.65, stepRate:42,  life:"20–25 yrs", maint:"Seal every 2–3 yrs",  desc:"Natural rot resistance, warm look"},
+  composite:{label:"Composite (Trex, TimberTech)", sqftRate:14, fastenerRate:1.80, stepRate:90,  life:"25–30 yrs", maint:"Rinse yearly",   desc:"Low maintenance, fade-resistant"},
+  pvc:      {label:"PVC / Cellular",         sqftRate:19,  fastenerRate:1.80, stepRate:115, life:"30+ yrs",   maint:"Rinse yearly",        desc:"Waterproof, premium durability"},
+  hardwood: {label:"Ipe / Cumaru Hardwood",  sqftRate:22,  fastenerRate:2.20, stepRate:135, life:"40+ yrs",   maint:"Oil annually (optional)", desc:"Tropical dense wood, elite look"},
 };
 
+/* Shapes: sizeFactor scales footprint from L×W; framingFactor adds framing complexity overhead;
+   perimeterFactor adjusts railing linear feet; wasteFactor is extra decking lost to cuts. */
 export const DECK_SHAPES = {
-  rectangle:  {label:"Rectangle",   factor:1.00, desc:"Simplest build"},
-  lshape:     {label:"L-Shape",     factor:1.08, desc:"Wraps around corner"},
-  wraparound: {label:"Wraparound",  factor:1.15, desc:"Two+ sides of the house"},
-  multilevel: {label:"Multi-Level", factor:1.28, desc:"Two elevations, extra framing"},
+  rectangle:  {label:"Rectangle",   sizeFactor:1.00, framingFactor:1.00, perimeterFactor:1.00, wasteFactor:0.08, desc:"Simplest build"},
+  lshape:     {label:"L-Shape",     sizeFactor:1.08, framingFactor:1.10, perimeterFactor:1.20, wasteFactor:0.12, desc:"Wraps around corner"},
+  wraparound: {label:"Wraparound",  sizeFactor:1.15, framingFactor:1.20, perimeterFactor:1.45, wasteFactor:0.14, desc:"Two+ sides of the house"},
+  multilevel: {label:"Multi-Level", sizeFactor:1.15, framingFactor:1.35, perimeterFactor:1.15, wasteFactor:0.13, desc:"Two elevations, extra framing"},
 };
 
+/* heightInches drives stair step count (7" rise); frameMult scales joist/beam cost. */
 export const HEIGHT_TIERS = {
-  ground: {label:"Ground-level (0–2 ft)", stairAdder:0,     frameMult:1.00, railingRequired:false, desc:"No railing required"},
-  low:    {label:"Low (2–4 ft)",            stairAdder:900,   frameMult:1.05, railingRequired:true,  desc:"1 short stair run, railing required"},
-  mid:    {label:"Mid (4–6 ft)",            stairAdder:2000,  frameMult:1.12, railingRequired:true,  desc:"Full stair run, full railing"},
-  high:   {label:"Raised (6–10 ft)",        stairAdder:3800,  frameMult:1.22, railingRequired:true,  desc:"Long stair run, deeper footings"},
+  ground: {label:"Ground-level (0–2 ft)",   heightInches:12, frameMult:1.00, railingRequired:false, desc:"No railing required"},
+  low:    {label:"Low (2–4 ft)",              heightInches:36, frameMult:1.05, railingRequired:true,  desc:"1 short stair run, railing required"},
+  mid:    {label:"Mid (4–6 ft)",              heightInches:60, frameMult:1.12, railingRequired:true,  desc:"Full stair run, full railing"},
+  high:   {label:"Raised (6–10 ft)",          heightInches:96, frameMult:1.25, railingRequired:true,  desc:"Long stair run, deeper footings"},
 };
 
 export const RAILING_TYPES = {
@@ -124,21 +127,38 @@ export const RAILING_TYPES = {
 };
 
 export const DECK_FEATURES = [
-  {id:"lighting",      label:"Deck Lighting",               cost:1400, icon:"💡", laborIntensive:false},
-  {id:"hiddenfast",    label:"Hidden Fasteners",            cost:1200, icon:"🔩", laborIntensive:false, perSqft:true},
-  {id:"bench",         label:"Built-in Benches",            cost:1600, icon:"🪑", laborIntensive:true},
-  {id:"planter",       label:"Built-in Planters",           cost:900,  icon:"🌿", laborIntensive:true},
-  {id:"pergola",       label:"Pergola (10×12)",             cost:6500, icon:"🏛️", laborIntensive:true},
-  {id:"privacy",       label:"Privacy Screen Wall",         cost:2200, icon:"🌳", laborIntensive:true},
-  {id:"hottub",        label:"Hot Tub Cutout + Reinforce",  cost:2800, icon:"♨️", laborIntensive:true},
-  {id:"outdoor_kit",   label:"Outdoor Kitchen Bump-Out",    cost:9500, icon:"🍳", laborIntensive:true},
-  {id:"firetable",     label:"Gas Fire Table Rough-in",     cost:1500, icon:"🔥", laborIntensive:true},
-  {id:"screenroom",    label:"Screened Enclosure",          cost:14000,icon:"🪟", laborIntensive:true, requiresRoof:true},
+  {id:"demo",          label:"Remove Existing Deck",        cost:5,     icon:"🧹", laborIntensive:true, perSqft:true},
+  {id:"lighting",      label:"Deck Lighting",               cost:1400,  icon:"💡", laborIntensive:false, permit:50},
+  {id:"bench",         label:"Built-in Benches",            cost:1600,  icon:"🪑", laborIntensive:true},
+  {id:"planter",       label:"Built-in Planters",           cost:900,   icon:"🌿", laborIntensive:true},
+  {id:"pergola",       label:"Pergola (10×12)",             cost:6500,  icon:"🏛️", laborIntensive:true, permit:150},
+  {id:"privacy",       label:"Privacy Screen Wall",         cost:2200,  icon:"🌳", laborIntensive:true},
+  {id:"hottub",        label:"Hot Tub Cutout + Reinforce",  cost:2800,  icon:"♨️", laborIntensive:true, permit:120},
+  {id:"outdoor_kit",   label:"Outdoor Kitchen Bump-Out",    cost:9500,  icon:"🍳", laborIntensive:true, permit:140},
+  {id:"firetable",     label:"Gas Fire Table Rough-in",     cost:1500,  icon:"🔥", laborIntensive:true, permit:80},
+  {id:"screenroom",    label:"Screened Enclosure",          cost:14000, icon:"🪟", laborIntensive:true, permit:220, requiresRoof:true},
 ];
 
-/* Labor: fraction of TOTAL is labor. We back out labor from materials using a multiplier. */
-/* Simpler: total = (matCost + frame + footings + railing + stairs + features) × (1 + laborAdder × stateLaborMult) */
-/* Framing rate: ~$12/sqft of deck for PT framing + footings. Scales with height + shape complexity. */
+/* Shared estimator used by sub-pages for 300 sqft mid-height composite samples. */
+export function estimateSample({ matRate, fastenerRate = 1.5, stepRate = 90, stateCode, metroMult = 1.0, sqft = 300 }) {
+  const sd = STATES[stateCode]; if (!sd) return 0;
+  const labMult = sd.labor * metroMult;
+  const frostMult = sd.frost ? 1.08 : 1.0;
+  const matCost    = sqft * (matRate + fastenerRate) * 1.08;                  // 8% waste (rectangle)
+  const frameCost  = sqft * 10.50 * 1.12 * frostMult * 1.00;                  // mid-height, rect
+  const piers      = Math.max(4, Math.ceil(sqft / 60));
+  const footings   = piers * (sd.frost ? 260 : 180);
+  const ledgerCost = 20 * 26;                                                 // 20-ft ledger
+  const stepCount  = Math.ceil(60 / 7);                                       // mid-height, ~9 steps
+  const stairCost  = stepCount * (stepRate + 55) + 350;                       // 4-ft-wide stair run
+  const stairRailLf = stepCount * (11/12) * 2;
+  const perimRailLf = 2*(20+15) - 20;                                         // 20×15 footprint, one house-side
+  const railingCost = (perimRailLf + stairRailLf) * 65;                       // composite rate
+  const subtotal   = matCost + frameCost + footings + ledgerCost + stairCost + railingCost;
+  const laborCost  = subtotal * (0.42 + 0.40 * (labMult - 1));
+  const permit     = sd.permit + sqft * 0.50;
+  return Math.round((subtotal + laborCost + permit) * 1.08);
+}
 
 const fmt = n => "$" + Math.round(n).toLocaleString();
 
@@ -255,56 +275,95 @@ export default function App() {
   const ht = HEIGHT_TIERS[height];
   const rail = RAILING_TYPES[railing];
 
-  const sqft = length * width * sh.factor;
-  const perimeter = 2 * (length + width);
-  const railingLinearFt = ht.railingRequired ? Math.max(perimeter - length * 0.3, 0) : 0;
+  const footprint = length * width * sh.sizeFactor;
+  const perimeter = 2 * (length + width) * sh.perimeterFactor;
 
   /* Cost model */
   const {
-    matCost, frameCost, footings, railingCost, stairs, featCost,
-    subtotalBeforeLabor, laborCost, permit, contingency, total, bRows
+    matCost, frameCost, footings, railingCost, stairCost, ledgerCost, featCost,
+    subtotalBeforeLabor, laborCost, permit, contingency, total, bRows, footingsCount, totalRailLf
   } = useMemo(() => {
     const labMult = sd.labor * metro.mult;
     const frostMult = sd.frost ? 1.08 : 1.0;
+    const isGround = !ht.railingRequired;
 
-    const matCost = sqft * mat.sqftRate;
-    const frameCost = sqft * 11 * ht.frameMult * frostMult * sh.factor;
-    const footingsCount = Math.ceil(sqft / 75) + (ht.frameMult > 1.1 ? 2 : 0);
-    const footings = footingsCount * (sd.frost ? 240 : 170);
-    const railingCost = railingLinearFt * rail.rate;
-    const stairs = ht.stairAdder;
+    // Material: boards + fasteners + waste
+    const matCost = footprint * (mat.sqftRate + mat.fastenerRate) * (1 + sh.wasteFactor);
 
+    // Framing: $10.50/sqft PT baseline, scaled by height/frost/shape complexity
+    const frameCost = footprint * 10.50 * ht.frameMult * frostMult * sh.framingFactor;
+
+    // Footings: ~1 pier per 60 sqft, floor of 4, +2 for raised/multi
+    const footingsCount = Math.max(4, Math.ceil(footprint / 60))
+      + (height === "high" ? 2 : 0)
+      + (shape === "multilevel" ? 2 : 0);
+    const footings = footingsCount * (sd.frost ? 260 : 180);
+
+    // Ledger + flashing (when deck attaches to house)
+    const ledgerLf = isGround ? 0 : (shape === "wraparound" ? length + width : length);
+    const ledgerCost = ledgerLf * 26;
+
+    // Stairs: per-step material + labor, scales with material + width + run count
+    const stairRuns = isGround ? 0 : (shape === "multilevel" ? 2 : 1);
+    const stepCount = Math.ceil(ht.heightInches / 7);
+    const stairRunFt = stepCount * (11 / 12);
+    const stairWidthFt = 4;
+    const widthFactor = stairWidthFt / 4;
+    // Multi-level's 2nd run is the step between levels — typically half the height
+    const stairCost = stairRuns > 0
+      ? stairRuns === 2
+        ? (stepCount * (mat.stepRate + 55) * widthFactor + 350)
+          + (Math.ceil(stepCount / 2) * (mat.stepRate + 55) * widthFactor + 350)
+        : stepCount * (mat.stepRate + 55) * widthFactor + 350
+      : 0;
+
+    // Railing: perimeter minus house-side + stair handrails (both sides)
+    const houseLf = isGround ? 0 : (shape === "wraparound" ? length + width : length);
+    const perimRailLf = ht.railingRequired ? Math.max(0, perimeter - houseLf) : 0;
+    const stairRailLf = stairRuns * stairRunFt * 2;
+    const totalRailLf = perimRailLf + stairRailLf;
+    const railingCost = totalRailLf * rail.rate;
+
+    // Features
     let featCost = 0;
+    let featurePermit = 0;
     Object.entries(features).forEach(([id, on]) => {
       if (!on) return;
       const f = DECK_FEATURES.find(x => x.id === id);
       if (!f) return;
       let c = f.cost;
-      if (f.perSqft) c = Math.round(sqft * 3);
+      if (f.perSqft) c = Math.round(footprint * f.cost);
       featCost += f.laborIntensive ? c * (0.55 + 0.45 * labMult) : c;
+      if (f.permit) featurePermit += f.permit;
     });
 
-    const subtotalBeforeLabor = matCost + frameCost + footings + railingCost + stairs + featCost;
-    const laborCost = subtotalBeforeLabor * (0.55 * (labMult - 1) + 0.55);
-    const permit = sd.permit;
+    const subtotalBeforeLabor = matCost + frameCost + footings + ledgerCost + stairCost + railingCost + featCost;
+
+    // Labor: narrowed swing — 36% (MS) to 58% (HI) of subtotal. Was 42-76%.
+    const laborCost = subtotalBeforeLabor * (0.42 + 0.40 * (labMult - 1));
+
+    // Permit: base + sqft fee + feature surcharges
+    const permit = sd.permit + Math.round(footprint * 0.50) + featurePermit;
+
     const preCont = subtotalBeforeLabor + laborCost + permit;
     const contingency = preCont * 0.08;
     const total = preCont + contingency;
 
     const bRows = [
-      { l: `Decking material (${mat.label})`, v: matCost, c: T.accent },
+      { l: `Decking (${mat.label}${sh.wasteFactor > 0 ? `, +${Math.round(sh.wasteFactor*100)}% waste` : ""})`, v: matCost, c: T.accent },
       { l: "Framing (joists, posts, beams)", v: frameCost, c: T.textMid },
       { l: `Footings (${footingsCount} piers${sd.frost ? ", frost-depth" : ""})`, v: footings, c: T.textMid },
-      ...(railingCost > 0 ? [{ l: `Railing (${rail.label}, ${Math.round(railingLinearFt)} lf)`, v: railingCost, c: T.textMid }] : []),
-      ...(stairs > 0 ? [{ l: "Stairs", v: stairs, c: T.textMid }] : []),
+      ...(ledgerCost > 0 ? [{ l: `Ledger & flashing (${Math.round(ledgerLf)} lf)`, v: ledgerCost, c: T.textMid }] : []),
+      ...(stairCost > 0 ? [{ l: `Stairs (${stairRuns} run${stairRuns > 1 ? "s" : ""}, ${stepCount} steps)`, v: stairCost, c: T.textMid }] : []),
+      ...(railingCost > 0 ? [{ l: `Railing (${rail.label}, ${Math.round(totalRailLf)} lf)`, v: railingCost, c: T.textMid }] : []),
       ...(featCost > 0 ? [{ l: "Features", v: featCost, c: T.accent }] : []),
       { l: `Labor (${sd.name}${metro.label ? `, ${metro.label}` : ""})`, v: laborCost, c: T.accentDark, h: true },
-      { l: "Permit", v: permit, c: T.textDim },
+      { l: "Permits & fees", v: permit, c: T.textDim },
       { l: "Contingency (8%)", v: contingency, c: T.textDim },
     ];
 
-    return { matCost, frameCost, footings, railingCost, stairs, featCost, subtotalBeforeLabor, laborCost, permit, contingency, total, bRows };
-  }, [sqft, mat, ht, sh, rail, railingLinearFt, sd, metro, features]);
+    return { matCost, frameCost, footings, railingCost, stairCost, ledgerCost, featCost, subtotalBeforeLabor, laborCost, permit, contingency, total, bRows, footingsCount, totalRailLf };
+  }, [footprint, perimeter, mat, ht, sh, rail, sd, metro, features, shape, height, length, width]);
 
   const maxR = Math.max(...bRows.map(r => r.v));
 
@@ -362,7 +421,7 @@ export default function App() {
           <Slider label="Width" val={width} setter={setWidth} min={6} max={24} />
         </div>
         <div style={{ fontSize: 12, color: T.textMid, marginBottom: 20, textAlign: "center", padding: "8px 12px", background: T.cardAlt, borderRadius: 8 }}>
-          <strong style={{ color: T.accent }}>{Math.round(sqft)} sqft</strong> · {Math.round(perimeter)} linear ft perimeter
+          <strong style={{ color: T.accent }}>{Math.round(footprint)} sqft</strong> · {Math.round(perimeter)} linear ft perimeter
         </div>
 
         {/* Height */}
@@ -393,7 +452,7 @@ export default function App() {
             <span style={{ fontSize: 16 }}>{f.icon}</span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 600, fontSize: 12, color: T.text }}>{f.label}</div>
-              <div style={{ fontSize: 10, color: T.textDim }}>+{fmt(f.perSqft ? Math.round(sqft * 3) : f.cost)}</div>
+              <div style={{ fontSize: 10, color: T.textDim }}>+{fmt(f.perSqft ? Math.round(footprint * f.cost) : f.cost)}</div>
             </div>
           </Chip>)}
         </div>
@@ -414,7 +473,7 @@ export default function App() {
         <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", opacity: 0.8, marginBottom: 6 }}>Your Estimate</div>
         <div style={{ fontSize: "clamp(36px, 7vw, 56px)", fontWeight: 900, fontFamily: "'Fraunces',Georgia,serif", letterSpacing: "-0.02em", lineHeight: 1 }}>{fmt(total)}</div>
         <div style={{ fontSize: 14, opacity: 0.9, marginTop: 8 }}>Range: {fmt(total * 0.87)} – {fmt(total * 1.18)}</div>
-        <div style={{ fontSize: 12, opacity: 0.75, marginTop: 4 }}>≈ {fmt(total / sqft)} per sqft installed · {mat.label} · {Math.round(sqft)} sqft</div>
+        <div style={{ fontSize: 12, opacity: 0.75, marginTop: 4 }}>≈ {fmt(total / footprint)} per sqft installed · {mat.label} · {Math.round(footprint)} sqft</div>
       </Card>
 
       {/* Lead capture */}

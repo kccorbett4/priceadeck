@@ -24,19 +24,23 @@ React 18 + Vite 6 + React Router 6 SPA with SSR prerender. Entry is `src/main.js
 
 ## Cost model (single source of truth)
 
-All pricing flows through `App.jsx`:
+All pricing flows through `App.jsx`. Shapes carry four factors (sizeFactor, framingFactor, perimeterFactor, wasteFactor) so area and complexity don't double-count.
 
-1. `sqft = length × width × shape.factor`
-2. `matCost = sqft × material.sqftRate`
-3. `frameCost = sqft × 11 × height.frameMult × frostMult × shape.factor`
-4. `footings = ceil(sqft/75) piers × $170 ($240 frost)`
-5. `railingCost = perimeter-ish linear ft × railing.rate` (only if height requires railing)
-6. `stairs = height.stairAdder`
-7. Feature costs toggle on/off; labor-intensive ones scale with state labor mult.
-8. `laborCost = subtotal × (0.55 × (stateLaborMult × metroMult - 1) + 0.55)`
-9. `total = (matCost + frame + footings + railing + stairs + features + labor + permit) × 1.08` (8% contingency)
+1. `footprint = length × width × shape.sizeFactor`
+2. `perimeter = 2(L+W) × shape.perimeterFactor`
+3. `matCost = footprint × (material.sqftRate + material.fastenerRate) × (1 + shape.wasteFactor)`
+4. `frameCost = footprint × $10.50 × height.frameMult × frostMult × shape.framingFactor`
+5. `pierCount = max(4, ceil(footprint/60)) + 2 if high + 2 if multilevel`
+6. `footings = pierCount × $180 ($260 frost)`
+7. `ledgerCost = (wraparound ? L+W : L) × $26` — only if not ground-level
+8. `stairCost = stairRuns × (stepCount × (material.stepRate + $55) × widthFactor + $350)` — multilevel has 2 runs (main + between-levels shorter)
+9. `railingCost = (perimeter − houseSide + stairRailingBothSides) × railing.rate`
+10. Features: flat or per-sqft; labor-intensive scale with state labor; some carry `permit` surcharge.
+11. `laborCost = subtotal × (0.42 + 0.40 × (stateLabor × metroMult − 1))` — narrower than pool-site swing
+12. `permit = state.permit + footprint × $0.50 + Σ feature.permit`
+13. `total = (subtotal + labor + permit) × 1.08` (8% contingency)
 
-StatePage, CityPage, and DataPage duplicate this model internally for sample 300 sqft decks. If you change pricing in App.jsx, change it in those three files too.
+Sub-pages (StatePage, CityPage, DataPage) call the exported `estimateSample()` helper so they stay in sync automatically.
 
 ## Adding pages
 
