@@ -486,7 +486,35 @@ export default function App() {
         <div style={{ fontSize: 11, color: T.textMid, lineHeight: 1.6, marginBottom: 12 }}>We'll match you with top-rated contractors in your area who build {mat.label.toLowerCase()} decks. No obligation, no spam.</div>
         {!leadSubmitted ? <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <input value={leadEmail} onChange={e => setLeadEmail(e.target.value)} placeholder="your@email.com" type="email" style={{ flex: "1 1 200px", padding: "11px 14px", borderRadius: 9, border: `1px solid ${T.border}`, background: T.card, color: T.text, fontSize: 14, outline: "none", boxSizing: "border-box" }} />
-          <button onClick={() => { if (leadEmail.includes("@")) setLeadSubmitted(true); }} style={{ padding: "13px 24px", borderRadius: 10, border: "none", fontWeight: 600, fontSize: 14, background: T.text, color: "#fff", cursor: "pointer" }}>Get Free Quotes →</button>
+          <button onClick={() => {
+            if (!leadEmail.includes("@")) return;
+            setLeadSubmitted(true);
+            if (typeof window.gtag === "function") window.gtag("event", "lead_submitted", { state: st, material, estimate: Math.round(total) });
+            fetch("https://script.google.com/macros/s/AKfycbzPpHWMgtvWn9ZxV-URWZw4OTLYA7t97FkWHLYsULdIZGU0xuGYHzgQVDCSnRxch0RE/exec", {
+              method: "POST",
+              mode: "no-cors",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                site: "priceadeck",
+                email: leadEmail,
+                state: sd.name,
+                zip: zip || "—",
+                metro: metro.label || "—",
+                material: mat.label,
+                shape: sh.label,
+                length,
+                width,
+                footprint: Math.round(footprint),
+                height: ht.label,
+                railing: rail.label,
+                features: Object.entries(features).filter(([,v]) => v).map(([k]) => DECK_FEATURES.find(f => f.id === k)?.label || k).join(", ") || "None",
+                estimateLow: fmt(total * 0.87),
+                estimate: fmt(total),
+                estimateHigh: fmt(total * 1.18),
+                perSqft: fmt(total / footprint),
+              }),
+            }).catch(() => {});
+          }} style={{ padding: "13px 24px", borderRadius: 10, border: "none", fontWeight: 600, fontSize: 14, background: T.text, color: "#fff", cursor: "pointer" }}>Get Free Quotes →</button>
         </div> : <div style={{ padding: "12px 16px", background: T.successBg, border: `1px solid ${T.successBorder}`, borderRadius: 9, fontSize: 13, fontWeight: 700, color: T.success }}>✓ We'll be in touch within 24 hours with quotes from {sd.name} builders.</div>}
       </Card>
 
